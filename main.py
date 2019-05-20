@@ -4,6 +4,10 @@ from enum import Enum
 import random as rand
 from scipy import stats
 
+
+"""
+Global Parameters
+"""
 # Define Parameters for matrix
 rows = 3
 columns = 8
@@ -11,10 +15,10 @@ wPerceptron = [[0.0] * columns] * rows
 wSVM = [[0.0] * columns] * rows
 wPA = [[0.0] * columns] * rows
 # Const Perceptron
-CP = 1
+CP = 0.5
 # Consts for SVM
-etaSVM = 1.5
-lambdaSVM = 0.5
+etaSVM = 1.2
+lambdaSVM = 1.5
 # Consts for PA
 taoPA = 0
 
@@ -52,7 +56,7 @@ def stripAndSplit(line):
         line[0] = Gender.Infant.value
     temp_float = [float(i) for i in line]
     # In case we want to normalized the line with "Z-SCORE" function
-    # temp_float = stats.mstats.zscore(temp_float, ddof=1)
+    #temp_float = stats.mstats.zscore(temp_float, ddof=1)
     return temp_float
 
 
@@ -109,7 +113,7 @@ def calcSVM(line_SVM, original_y, y_hat):
 
     # Calc for not y and not y hat (all the others, we have 1 only..)
     for i in range(rows):
-        if i != y_hat and i != y:
+        if i != y_hat and i != original_y:
             wSVM[i] = np.multiply(oneMinus, wSVM[i])
 
 
@@ -209,7 +213,7 @@ DataSet_X = DataSet_X.splitlines(True)
 DataSet_X = [stripAndSplit(i) for i in DataSet_X]
 DataSet_X = minMaxAlgorithm(DataSet_X)
 
-# Parse dataSet Y without lines, and commas.
+# Parse dataSet Y without lines, and commas. No need to normalized the y
 Labels_Y = Labels_Y.splitlines(True)
 Labels_Y = [splitterForLines(i) for i in Labels_Y]
 
@@ -228,9 +232,9 @@ for i in range(20):
         y_hat_PA = y_HatCalculation(wPA, line)
         # Calc the const and improve our error rate for all constants and algorithms
         indexForConstansts += 1
-        if indexForConstansts % 1000 == 0:
-            CP = CP * 0.5
-            etaSVM = etaSVM * 0.5
+        if i >= 10:
+            CP = CP * 0.999
+            etaSVM = etaSVM * 0.999
         if y != y_hat_Perceptron:
             # Perceptron Calc
             calcPerceptron(line, int(y), y_hat_Perceptron)
@@ -254,12 +258,12 @@ testingSet(testingSet_x)
 """
  This is for self purpose and testing
 """
-# magicnumber = 2000
+# magicnumber = 2725
 # check_x = DataSet_X[:magicnumber]
 # check_y = Labels_Y[:magicnumber]
 # print("Perceptron:")
 # CalculateErrorRate(check_x, check_y, wPerceptron)
-# print("SVM")
+# print("SVM ")
 # CalculateErrorRate(check_x, check_y, wSVM)
 # print("PA")
 # CalculateErrorRate(check_x, check_y, wPA)
